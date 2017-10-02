@@ -10,7 +10,8 @@
     "build": "cross-env NODE_ENV=build rollup -c",
     "start": "webpack-dev-server --open",
     "test": "jest --coverage",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "prepublish": "yarn build"
   },
   "lint-staged": {
     "*.js": [
