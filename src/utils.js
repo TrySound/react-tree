@@ -3,6 +3,7 @@
 export type TreeRow = {
   key: string,
   parents: string[],
+  position: number,
   data: Object
 };
 
@@ -28,19 +29,20 @@ type RemoveParams = {
   removing: string
 };
 
-const flattenImpl = (data, getKey, children, parents = []) => {
+const flattenImpl = (data, getKey, children, position = 0, parents = []) => {
   const list = [
     {
       key: getKey(data),
       parents,
+      position,
       data
     }
   ];
   const newChildren = data[children];
   const key = getKey(data);
   if (newChildren) {
-    newChildren.forEach(d => {
-      list.push(...flattenImpl(d, getKey, children, [...parents, key]));
+    newChildren.forEach((d, i) => {
+      list.push(...flattenImpl(d, getKey, children, i, [...parents, key]));
     });
   }
   return list;

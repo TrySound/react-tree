@@ -119,21 +119,25 @@ test("flatten", () => {
     {
       key: "0",
       parents: [],
+      position: 0,
       data: root
     },
     {
       key: "1",
       parents: ["0"],
+      position: 0,
       data: group1
     },
     {
       key: "2",
       parents: ["0", "1"],
+      position: 0,
       data: leaf2
     },
     {
       key: "3",
       parents: ["0"],
+      position: 1,
       data: leaf3
     }
   ]);
