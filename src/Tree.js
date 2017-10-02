@@ -267,6 +267,7 @@ class Tree extends React.Component<Props, State> {
                 right: 0,
                 left: 0,
                 transform: `translate(${moving.x}px, ${moving.y}px)`,
+                pointerEvents: "none",
                 height: rowHeight
               }}
             >
