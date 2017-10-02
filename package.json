@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "cross-env NODE_ENV=build rollup -c",
     "start": "webpack-dev-server --open",
