@@ -8,7 +8,7 @@ type Props = {|
   root: boolean,
   rowHeight: number,
   getKey: any => string,
-  children: string,
+  childrenField: string,
   dragGroups: boolean,
   renderGroup: ({ ...TreeRow, ...Object }) => React.Node,
   renderLeaf: TreeRow => React.Node,
@@ -54,7 +54,7 @@ class Tree extends React.Component<Props, State> {
     root: false,
     rowHeight: 30,
     getKey: d => d.key,
-    children: "children",
+    childrenField: "children",
     dragGroups: false,
     renderGroup: defaultRenderGroup,
     renderLeaf: defaultRenderLeaf
@@ -68,7 +68,7 @@ class Tree extends React.Component<Props, State> {
 
   rows = flatten({
     getKey: this.props.getKey,
-    children: this.props.children,
+    children: this.props.childrenField,
     data: this.props.data
   }).slice(this.props.root ? 0 : 1);
 
@@ -90,14 +90,14 @@ class Tree extends React.Component<Props, State> {
   };
 
   down = (e: SyntheticMouseEvent<HTMLElement>) => {
-    const { dragGroups, rowHeight, children } = this.props;
+    const { dragGroups, rowHeight, childrenField } = this.props;
     const { container, rows } = this;
     if (container) {
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const movingRow = rows[Math.floor(y / rowHeight)];
-      if (this.dragGroups || !movingRow.data[children]) {
+      if (this.dragGroups || !movingRow.data[childrenField]) {
         this.movingRow = movingRow;
         this.downPoint = {
           x,
@@ -111,7 +111,7 @@ class Tree extends React.Component<Props, State> {
 
   move = (e: MouseEvent) => {
     const { container, movingRow, downPoint } = this;
-    const { rowHeight, root, data, getKey, children } = this.props;
+    const { rowHeight, root, data, getKey, childrenField } = this.props;
     const { visible } = this.state;
     if (container && downPoint) {
       const rect = container.getBoundingClientRect();
@@ -129,17 +129,17 @@ class Tree extends React.Component<Props, State> {
           targetRow.key !== movingRow.key
         ) {
           this.targetRow = targetRow;
-          const to = targetRow.data[children]
+          const to = targetRow.data[childrenField]
             ? targetRow.key
             : targetRow.parents[targetRow.parents.length - 1];
-          const after = targetRow.data[children] ? "" : targetRow.key;
+          const after = targetRow.data[childrenField] ? "" : targetRow.key;
           this.setState({
             tmpData: flatten({
               getKey,
-              children,
+              children: childrenField,
               data: move({
                 getKey,
-                children,
+                children: childrenField,
                 data,
                 from: movingRow.key,
                 to,
@@ -168,7 +168,7 @@ class Tree extends React.Component<Props, State> {
   };
 
   up = (e: MouseEvent) => {
-    const { data, getKey, children, rowHeight } = this.props;
+    const { data, getKey, childrenField, rowHeight } = this.props;
     const { movingRow, targetRow } = this;
     if (this.container && this.state.moving) {
       const rect = this.container.getBoundingClientRect();
@@ -177,13 +177,13 @@ class Tree extends React.Component<Props, State> {
 
       if (targetRow && movingRow && targetRow.key !== movingRow.key) {
         const lastParent = targetRow.parents[targetRow.parents.length - 1];
-        const to = targetRow.data[children] ? targetRow.key : lastParent;
-        const after = targetRow.data[children] ? "" : targetRow.key;
+        const to = targetRow.data[childrenField] ? targetRow.key : lastParent;
+        const after = targetRow.data[childrenField] ? "" : targetRow.key;
         this.props.onChange(
           move({
             data,
             getKey,
-            children,
+            children: childrenField,
             from: movingRow.key,
             to,
             after
@@ -209,18 +209,18 @@ class Tree extends React.Component<Props, State> {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    const { root, data, getKey, children } = nextProps;
+    const { root, data, getKey, childrenField } = nextProps;
     const { visible } = nextState;
     if (
       this.props.root !== root ||
       this.props.getKey !== getKey ||
-      this.props.children !== children ||
+      this.props.childrenField !== childrenField ||
       this.props.data !== data ||
       this.state.visible !== visible
     ) {
       this.rows = flatten({
         getKey: nextProps.getKey,
-        children: nextProps.children,
+        children: nextProps.childrenField,
         data: nextProps.data
       })
         .slice(nextProps.root ? 0 : 1)
@@ -230,7 +230,7 @@ class Tree extends React.Component<Props, State> {
 
   render() {
     const { movingRow } = this;
-    const { rowHeight, children, renderGroup, renderLeaf } = this.props;
+    const { rowHeight, childrenField, renderGroup, renderLeaf } = this.props;
     const { moving, tmpData, visible } = this.state;
     const containerStyle = {
       position: "relative",
@@ -241,8 +241,9 @@ class Tree extends React.Component<Props, State> {
         {(tmpData || this.rows).map((d, i) => {
           const rowStyle = {
             position: "absolute",
-            left: 0,
             top: 0,
+            right: 0,
+            left: 0,
             transform: `translateY(${i * rowHeight}px)`,
             height: rowHeight
           };
@@ -250,7 +251,7 @@ class Tree extends React.Component<Props, State> {
           const closed = visible[d.key] === false;
           return (
             <div key={d.key} style={rowStyle} onMouseDown={this.down}>
-              {d.data[children]
+              {d.data[childrenField]
                 ? renderGroup(Object.assign({}, d, { closed, toggle }))
                 : renderLeaf(d)}
             </div>
@@ -263,12 +264,13 @@ class Tree extends React.Component<Props, State> {
               style={{
                 position: "absolute",
                 top: 0,
+                right: 0,
                 left: 0,
                 transform: `translate(${moving.x}px, ${moving.y}px)`,
                 height: rowHeight
               }}
             >
-              {movingRow.data[children]
+              {movingRow.data[childrenField]
                 ? renderGroup(movingRow)
                 : renderLeaf(movingRow)}
             </div>
